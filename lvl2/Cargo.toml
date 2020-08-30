@@ -1,0 +1,10 @@
+[package]
+name = "band-bridge-lvl2"
+version = "0.0.1"
+authors = ["andrei-marinica <andrei.marinica@elrond.com>"]
+edition = "2018"
+
+[dependencies]
+elrond-wasm = "0.6.0"
+elrond-wasm-node = "0.6.0"
+elrond-wasm-derive = "0.6.0"
