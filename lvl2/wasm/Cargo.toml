@@ -1,5 +1,5 @@
 [package]
-name = "band-bridge-lvl2-wasm"
+name = "band_bridge_lvl2_wasm"
 version = "0.2.0"
 authors = ["andrei-marinica <andrei_m_marinica@yahoo.com>"]
 edition = "2018"
@@ -15,7 +15,7 @@ debug = false
 panic = "abort"
 
 [dependencies]
-band-bridge-lvl2 = { path = ".." }
+band_bridge_lvl2 = { path = ".." }
 elrond-wasm-output = { version="0.6.0", features=["wasm-output-mode"]}
 
 [workspace]

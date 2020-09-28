@@ -1,5 +1,5 @@
 [package]
-name = "band-bridge-lvl2"
+name = "band_bridge_lvl2"
 version = "0.0.1"
 authors = ["andrei-marinica <andrei.marinica@elrond.com>"]
 edition = "2018"
