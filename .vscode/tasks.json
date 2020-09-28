@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "lvl1-debug-build",
+            "command": "cargo",
+            "args": [
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}//lvl1/debug"
+            },
+            "type": "shell"
+        },
+        {
+            "label": "lvl2-debug-build",
+            "command": "cargo",
+            "args": [
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}//lvl2/debug"
+            },
+            "type": "shell"
+        }
+    ]
+}

@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug lvl1",
+            "preLaunchTask": "lvl1-debug-build",
+            "program": "${workspaceFolder}//lvl1/debug/target/debug/lvl1-debug",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug lvl2",
+            "preLaunchTask": "lvl2-debug-build",
+            "program": "${workspaceFolder}//lvl2/debug/target/debug/lvl2-debug",
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
