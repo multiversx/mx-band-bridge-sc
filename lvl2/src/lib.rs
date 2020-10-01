@@ -3,8 +3,12 @@
 
 imports!();
 
-pub mod price_data;
-use price_data::*;
+pub mod ref_data;
+use ref_data::*;
+
+const USD_TICKER: &[u8] = b"USD";
+const U64_1_E9: u64 = 1000000000;
+const U64_1_E18: u64 = 1000000000000000000;
 
 #[elrond_wasm_derive::contract(BandBridgeLevel2Impl)]
 pub trait BandBridgeLevel2 {
@@ -13,30 +17,50 @@ pub trait BandBridgeLevel2 {
     fn init(&self) {
     }
 
-    #[storage_get("price")]
-    fn get_price_data(&self, symbol: Vec<u8>) -> Option<PriceData>;
+    #[storage_get("ref")]
+    fn get_ref(&self, symbol: Vec<u8>) -> RefData;
 
-    #[storage_set("price")]
-    fn set_price_data(&self, symbol: &[u8], price_data: &Option<PriceData>);
+    #[storage_set("ref")]
+    fn set_ref(&self, symbol: &[u8], ref_data: &RefData);
 
-    /// Returns nothing (no result) if price data is not set.
-    /// Returns 1 result, the price data if it is set.
-    #[view(getPrice)]
-    fn get_price_data_endpoint(&self, symbol: Vec<u8>) -> OptionalResult<PriceData> {
-        self.get_price_data(symbol).into()
-    }
-
-    #[endpoint(updataPrice)]
-    fn update_price(&self, symbol: Vec<u8>, price: u64, multiplier: u64) -> SCResult<()> {
+    #[endpoint]
+    fn relay(&self, #[var_args] arguments: VarArgs<MultiArg4<Vec<u8>, u64, u64, u64>>) -> SCResult<()> {
         require!(self.get_caller() == self.get_owner_address(), "only owner can update price");
 
-        self.set_price_data(symbol.as_slice(), &Some(PriceData{
-            price,
-            multiplier,
-            last_update: self.get_block_nonce(),
-        }));
+        for multi_arg in arguments.into_vec().into_iter() {
+            let (symbol, rate, resolve_time, request_id) = multi_arg.into_tuple();
+            
+            self.set_ref(symbol.as_slice(), &RefData{
+                rate,
+                resolve_time,
+                request_id,
+            });            
+        }
 
         Ok(())
     }
-    
+
+    #[view(getReferenceData)]
+    fn get_reference_data(&self,
+        base_symbol: Vec<u8>,
+        quote_symbol: Vec<u8>) -> SCResult<MultiResult3<BigUint, u64, u64>> {
+
+        let (base_rate, base_last_update) = sc_try!(self.get_ref_data(base_symbol));
+        let (quote_rate, quote_last_update) = sc_try!(self.get_ref_data(quote_symbol));
+
+        let mut rate = base_rate * BigUint::from(U64_1_E18);
+        rate /= quote_rate;
+
+        Ok((rate, base_last_update, quote_last_update).into())
+    }
+
+    fn get_ref_data(&self, symbol: Vec<u8>) -> SCResult<(BigUint, u64)> {
+        if symbol.as_slice() == USD_TICKER {
+            Ok((BigUint::from(U64_1_E9), self.get_block_timestamp()))
+        } else {
+            let ref_data = self.get_ref(symbol);
+            require!(!ref_data.is_uninitialized(), "REF_DATA_NOT_AVAILABLE");
+            Ok((BigUint::from(ref_data.rate), ref_data.resolve_time))
+        }
+    }
 }
