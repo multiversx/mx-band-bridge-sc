@@ -119,62 +119,24 @@
         },
         {
             "step": "scCall",
-            "txId": "get2",
+            "txId": "get_2_3_4",
             "tx": {
                 "from": "address:owner",
                 "to": "address:lvl2",
                 "value": "0",
-                "function": "getReferenceData",
-                "arguments": [ "str:BTC", "str:USD" ],
-                "gasLimit": "100,000",
-                "gasPrice": "0"
-            },
-            "expect": {
-                "out": [
-                    "10000_000000000000000000", "124001", "123000"
+                "function": "getReferenceDataBulk",
+                "arguments": [ 
+                    "str:BTC", "str:USD",
+                    "str:USD", "str:USD",
+                    "str:EGLD", "str:BTC"
                 ],
-                "status": "",
-                "logs": [],
-                "gas": "*",
-                "refund": "*"
-            }
-        },
-        {
-            "step": "scCall",
-            "txId": "get2",
-            "tx": {
-                "from": "address:owner",
-                "to": "address:lvl2",
-                "value": "0",
-                "function": "getReferenceData",
-                "arguments": [ "str:USD", "str:USD" ],
                 "gasLimit": "100,000",
                 "gasPrice": "0"
             },
             "expect": {
                 "out": [
-                    "1_000000000000000000", "123000", "123000"
-                ],
-                "status": "",
-                "logs": [],
-                "gas": "*",
-                "refund": "*"
-            }
-        },
-        {
-            "step": "scCall",
-            "txId": "get2",
-            "tx": {
-                "from": "address:owner",
-                "to": "address:lvl2",
-                "value": "0",
-                "function": "getReferenceData",
-                "arguments": [ "str:EGLD", "str:BTC" ],
-                "gasLimit": "100,000",
-                "gasPrice": "0"
-            },
-            "expect": {
-                "out": [
+                    "10000_000000000000000000", "124001", "123000",
+                    "1_000000000000000000", "123000", "123000",
                     "1_500000000000000000", "124000", "124001"
                 ],
                 "status": "",

@@ -40,6 +40,16 @@ pub trait BandBridgeLevel2 {
         Ok(())
     }
 
+    fn get_ref_data(&self, symbol: Vec<u8>) -> SCResult<(BigUint, u64)> {
+        if symbol.as_slice() == USD_TICKER {
+            Ok((BigUint::from(U64_1_E9), self.get_block_timestamp()))
+        } else {
+            let ref_data = self.get_ref(symbol);
+            require!(!ref_data.is_uninitialized(), "REF_DATA_NOT_AVAILABLE");
+            Ok((BigUint::from(ref_data.rate), ref_data.resolve_time))
+        }
+    }
+
     #[view(getReferenceData)]
     fn get_reference_data(&self,
         base_symbol: Vec<u8>,
@@ -54,13 +64,18 @@ pub trait BandBridgeLevel2 {
         Ok((rate, base_last_update, quote_last_update).into())
     }
 
-    fn get_ref_data(&self, symbol: Vec<u8>) -> SCResult<(BigUint, u64)> {
-        if symbol.as_slice() == USD_TICKER {
-            Ok((BigUint::from(U64_1_E9), self.get_block_timestamp()))
-        } else {
-            let ref_data = self.get_ref(symbol);
-            require!(!ref_data.is_uninitialized(), "REF_DATA_NOT_AVAILABLE");
-            Ok((BigUint::from(ref_data.rate), ref_data.resolve_time))
+    #[view(getReferenceDataBulk)]
+    fn get_reference_data_bulk(&self,
+        #[var_args] arguments: VarArgs<MultiArg2<Vec<u8>, Vec<u8>>>) 
+        -> SCResult<MultiResultVec<MultiResult3<BigUint, u64, u64>>> {
+
+        let mut result_vec = Vec::<MultiResult3<BigUint, u64, u64>>::with_capacity(arguments.len());
+        for multi_arg in arguments.into_vec().into_iter() {
+            let (base_symbol, quote_symbol) = multi_arg.into_tuple();
+            let triple = sc_try!(self.get_reference_data(base_symbol, quote_symbol));
+            result_vec.push(triple);
         }
+
+        Ok(result_vec.into())
     }
 }
