@@ -16,13 +16,8 @@ pub trait BandBridgeLevel1 {
 
     #[endpoint(updataPrice)]
     fn update_price(&self, symbol: Vec<u8>, price_data: Vec<u8>) -> SCResult<()> {
-        require!(
-            self.get_caller() == self.get_owner_address(),
-            "only owner can update price"
-        );
-
+        only_owner!(self, "only owner can update price");
         self.set_price_data(symbol.as_slice(), price_data.as_slice());
-
         Ok(())
     }
 }
