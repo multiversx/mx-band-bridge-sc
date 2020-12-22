@@ -29,7 +29,7 @@
             "tx": {
                 "from": "address:owner",
                 "value": "0",
-                "contractCode": "file:../output/band_bridge_lvl2.wasm",
+                "contractCode": "file:../output/band-bridge-lvl2.wasm",
                 "arguments": [],
                 "gasLimit": "100,000",
                 "gasPrice": "0"

@@ -1,4 +1,3 @@
-
 #![no_std]
 
 imports!();
@@ -12,51 +11,60 @@ const U64_1_E18: u64 = 1000000000000000000;
 
 #[elrond_wasm_derive::contract(BandBridgeLevel2Impl)]
 pub trait BandBridgeLevel2 {
-
     #[init]
-    fn init(&self) {
-    }
+    fn init(&self) {}
 
     #[storage_get("ref")]
-    fn get_ref(&self, symbol: Vec<u8>) -> RefData;
+    fn get_ref(&self, symbol: &[u8]) -> RefData;
+
+    #[storage_is_empty("ref")]
+    fn is_empty_ref(&self, symbol: &[u8]) -> bool;
 
     #[storage_set("ref")]
     fn set_ref(&self, symbol: &[u8], ref_data: &RefData);
 
     #[endpoint]
-    fn relay(&self, #[var_args] arguments: VarArgs<MultiArg4<Vec<u8>, u64, u64, u64>>) -> SCResult<()> {
-        require!(self.get_caller() == self.get_owner_address(), "only owner can update price");
+    fn relay(
+        &self,
+        #[var_args] arguments: VarArgs<MultiArg4<BoxedBytes, u64, u64, u64>>,
+    ) -> SCResult<()> {
+        only_owner!(self, "only owner can update price");
 
         for multi_arg in arguments.into_vec().into_iter() {
             let (symbol, rate, resolve_time, request_id) = multi_arg.into_tuple();
-            
-            self.set_ref(symbol.as_slice(), &RefData{
-                rate,
-                resolve_time,
-                request_id,
-            });            
+
+            self.set_ref(
+                symbol.as_slice(),
+                &RefData {
+                    rate,
+                    resolve_time,
+                    request_id,
+                },
+            );
         }
 
         Ok(())
     }
 
-    fn get_ref_data(&self, symbol: Vec<u8>) -> SCResult<(BigUint, u64)> {
-        if symbol.as_slice() == USD_TICKER {
+    fn get_ref_data(&self, symbol: &[u8]) -> SCResult<(BigUint, u64)> {
+        if symbol == USD_TICKER {
             Ok((BigUint::from(U64_1_E9), self.get_block_timestamp()))
+        } else if self.is_empty_ref(symbol) {
+            sc_error!("REF_DATA_NOT_AVAILABLE")
         } else {
             let ref_data = self.get_ref(symbol);
-            require!(!ref_data.is_uninitialized(), "REF_DATA_NOT_AVAILABLE");
             Ok((BigUint::from(ref_data.rate), ref_data.resolve_time))
         }
     }
 
     #[view(getReferenceData)]
-    fn get_reference_data(&self,
-        base_symbol: Vec<u8>,
-        quote_symbol: Vec<u8>) -> SCResult<MultiResult3<BigUint, u64, u64>> {
-
-        let (base_rate, base_last_update) = sc_try!(self.get_ref_data(base_symbol));
-        let (quote_rate, quote_last_update) = sc_try!(self.get_ref_data(quote_symbol));
+    fn get_reference_data(
+        &self,
+        base_symbol: BoxedBytes,
+        quote_symbol: BoxedBytes,
+    ) -> SCResult<MultiResult3<BigUint, u64, u64>> {
+        let (base_rate, base_last_update) = sc_try!(self.get_ref_data(base_symbol.as_slice()));
+        let (quote_rate, quote_last_update) = sc_try!(self.get_ref_data(quote_symbol.as_slice()));
 
         let mut rate = base_rate * BigUint::from(U64_1_E18);
         rate /= quote_rate;
@@ -65,10 +73,10 @@ pub trait BandBridgeLevel2 {
     }
 
     #[view(getReferenceDataBulk)]
-    fn get_reference_data_bulk(&self,
-        #[var_args] arguments: VarArgs<MultiArg2<Vec<u8>, Vec<u8>>>) 
-        -> SCResult<MultiResultVec<MultiResult3<BigUint, u64, u64>>> {
-
+    fn get_reference_data_bulk(
+        &self,
+        #[var_args] arguments: VarArgs<MultiArg2<BoxedBytes, BoxedBytes>>,
+    ) -> SCResult<MultiResultVec<MultiResult3<BigUint, u64, u64>>> {
         let mut result_vec = Vec::<MultiResult3<BigUint, u64, u64>>::with_capacity(arguments.len());
         for multi_arg in arguments.into_vec().into_iter() {
             let (base_symbol, quote_symbol) = multi_arg.into_tuple();

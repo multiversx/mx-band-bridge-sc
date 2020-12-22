@@ -1,9 +1,8 @@
 [package]
-name = "band-bridge-lvl2-wasm"
-version = "0.0.0"
-authors = ["andrei-marinica <andrei_m_marinica@yahoo.com>"]
+name = "simple-price-db-wasm"
+version = "0.2.0"
+authors = ["mumu"]
 edition = "2018"
-publish = false
 
 [lib]
 crate-type = ["cdylib"]
@@ -15,7 +14,7 @@ lto = true
 debug = false
 panic = "abort"
 
-[dependencies.band-bridge-lvl2]
+[dependencies.simple-price-db]
 path = ".."
 features = ["wasm-output-mode"]
 default-features = false

@@ -2,5 +2,6 @@
 members = [
   "lvl1",
   "lvl2",
+  "simple-price-db",
   
 ]
