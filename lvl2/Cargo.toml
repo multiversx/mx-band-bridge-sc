@@ -1,10 +1,26 @@
 [package]
-name = "band_bridge_lvl2"
+name = "band-bridge-lvl2"
 version = "0.0.1"
 authors = ["andrei-marinica <andrei.marinica@elrond.com>"]
 edition = "2018"
+publish = false
 
-[dependencies]
-elrond-wasm = "0.6.0"
-elrond-wasm-node = "0.6.0"
-elrond-wasm-derive = "0.6.0"
+[lib]
+path = "src/lib.rs"
+
+[features]
+wasm-output-mode = ["elrond-wasm-node"]
+
+[dependencies.elrond-wasm]
+version = "0.10.0"
+
+[dependencies.elrond-wasm-derive]
+version = "0.10.0"
+
+[dependencies.elrond-wasm-node]
+version = "0.10.0"
+optional = true
+
+[dev-dependencies.elrond-wasm-debug]
+version = "0.10.0"
+

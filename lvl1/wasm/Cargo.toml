@@ -1,8 +1,9 @@
 [package]
 name = "band-bridge-lvl1-wasm"
-version = "0.2.0"
+version = "0.0.0"
 authors = ["andrei-marinica <andrei_m_marinica@yahoo.com>"]
 edition = "2018"
+publish = false
 
 [lib]
 crate-type = ["cdylib"]
@@ -14,8 +15,14 @@ lto = true
 debug = false
 panic = "abort"
 
-[dependencies]
-band-bridge-lvl1 = { path = ".." }
-elrond-wasm-output = { version="0.6.0", features=["wasm-output-mode"]}
+[dependencies.band-bridge-lvl1]
+path = ".."
+features = ["wasm-output-mode"]
+default-features = false
+
+[dependencies.elrond-wasm-output]
+version = "0.10.0"
+features = ["wasm-output-mode"]
 
 [workspace]
+members = ["."]
