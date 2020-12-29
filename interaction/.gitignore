@@ -1,0 +1,4 @@
+#Only the scripts should be committed, everything else is potentially sensitive information
+*
+!.gitignore
+!*.sh
